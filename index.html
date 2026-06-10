@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Student Record System</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 32px; background: #f7f8fb; color: #111; }
+        h1 { color: #2c3e50; }
+        form { margin-bottom: 24px; }
+        .card { background: #fff; border-radius: 10px; padding: 20px; box-shadow: 0 6px 18px rgba(0,0,0,0.08); margin-bottom: 24px; }
+        label { display: block; margin-bottom: 8px; font-weight: bold; }
+        input[type="text"], input[type="number"] { width: 100%; padding: 8px 10px; margin-bottom: 14px; border: 1px solid #d7dce4; border-radius: 6px; }
+        button { background: #3b82f6; color: #fff; border: none; padding: 10px 18px; border-radius: 6px; cursor: pointer; }
+        button.secondary { background: #6b7280; }
+        table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+        th, td { padding: 12px 10px; border-bottom: 1px solid #e5e7eb; text-align: left; }
+        th { background: #eef2ff; }
+        .actions form { display: inline-block; margin-right: 8px; }
+        .search-box { display: flex; gap: 10px; margin-bottom: 20px; }
+        .search-box input { flex: 1; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>Student Record System</h1>
+        <div class="search-box">
+            <form method="get" action="/">
+                <input type="text" name="query" placeholder="Search by ID or name" value="{{ query }}" />
+                <button type="submit">Search</button>
+            </form>
+        </div>
+
+        <form id="student-form" method="post" action="/add">
+            <h2 id="form-title">Add Student</h2>
+            <input type="hidden" id="original_id" name="original_id" value="" />
+            <label for="student_id">Student ID</label>
+            <input type="text" id="student_id" name="student_id" required />
+
+            <label for="name">Name</label>
+            <input type="text" id="name" name="name" required />
+
+            <label for="age">Age</label>
+            <input type="number" id="age" name="age" min="1" />
+
+            <label for="grade">Grade</label>
+            <input type="text" id="grade" name="grade" />
+
+            <button type="submit" id="submit-button">Add Student</button>
+            <button type="button" class="secondary" onclick="setAddMode()">Reset</button>
+        </form>
+    </div>
+
+    <div class="card">
+        <h2>Students</h2>
+        {% if students %}
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Age</th>
+                    <th>Grade</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for student in students %}
+                <tr>
+                    <td>{{ student.id }}</td>
+                    <td>{{ student.name }}</td>
+                    <td>{{ student.age }}</td>
+                    <td>{{ student.grade }}</td>
+                    <td class="actions">
+                        <form method="post" action="/delete">
+                            <input type="hidden" name="student_id" value="{{ student.id }}" />
+                            <button type="submit" class="secondary">Delete</button>
+                        </form>
+                        <button type="button" onclick="populateUpdate('{{ student.id }}','{{ student.name }}','{{ student.age }}','{{ student.grade }}')">Edit</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p>No student records found.</p>
+        {% endif %}
+    </div>
+
+    <script>
+        function populateUpdate(id, name, age, grade) {
+            const form = document.getElementById('student-form');
+            document.getElementById('original_id').value = id;
+            document.getElementById('student_id').value = id;
+            document.getElementById('name').value = name;
+            document.getElementById('age').value = age;
+            document.getElementById('grade').value = grade;
+            document.getElementById('form-title').innerText = 'Update Student';
+            document.getElementById('submit-button').innerText = 'Save Changes';
+            form.action = '/update';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function setAddMode() {
+            const form = document.getElementById('student-form');
+            document.getElementById('original_id').value = '';
+            document.getElementById('student_id').value = '';
+            document.getElementById('name').value = '';
+            document.getElementById('age').value = '';
+            document.getElementById('grade').value = '';
+            document.getElementById('form-title').innerText = 'Add Student';
+            document.getElementById('submit-button').innerText = 'Add Student';
+            form.action = '/add';
+        }
+    </script>
+</body>
+</html>
